@@ -1,0 +1,36 @@
+stages:
+  - dockerize
+  - build
+
+variables:
+  IMG: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}
+
+build_container:
+    stage: dockerize
+    services:
+        - docker:dind
+    image: docker:latest
+    variables:
+        DOCKER_DRIVER: overlay2
+    before_script:
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        - docker pull ${IMG} || true
+    dependencies:
+        - mvn_package
+    script:
+        - docker build -t ${IMG} --cache-from ${IMG} ./artillery
+        - docker push ${IMG}
+
+artillery_report:
+  stage: build
+  image: .
+  script:
+    - artillery run -o report.json hello.yaml
+    - artillery report report.json
+  artifacts:
+    name: "Artillery Report_${CI_BUILD_REF}"
+    paths:
+      - report.json
+    expire_in: 1 week
+
+##https://gitlab.com/gitlab-org/gitlab-ce/issues/18106

@@ -1,0 +1,44 @@
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 50
+    - duration: 600
+      arrivalRate: 50
+  defaults:
+    headers:
+      x-my-service-auth: '987401838271002188298567'
+scenarios:
+  - name: "Checkout Owners"
+    flow:
+    - get:
+        url: "/owners?lastName="
+  - name: "Checkout Single Owner (1-10)"
+    flow:
+    - get:
+        url: "/owners/1"
+    - get:
+        url: "/owners/2"
+    - get:
+        url: "/owners/3"
+    - get:
+        url: "/owners/4"
+    - get:
+        url: "/owners/5"
+    - get:
+        url: "/owners/6"
+    - get:
+        url: "/owners/7"
+    - get:
+        url: "/owners/8"
+    - get:
+        url: "/owners/9"
+    - get:
+        url: "/owners/10"
+  - name: "Checkout Owner 10 Visits"
+    flow:
+    - get:
+        url: "/owners/10/pets/12/visits/new"
